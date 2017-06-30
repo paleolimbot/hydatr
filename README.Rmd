@@ -1,0 +1,73 @@
+---
+output: github_document
+---
+
+<!-- README.md is generated from README.Rmd. Please edit that file -->
+
+```{r, echo = FALSE}
+knitr::opts_chunk$set(
+  collapse = TRUE,
+  comment = "#>",
+  fig.path = "README-"
+)
+```
+
+# hydatr
+
+The HYDAT database contains over 1 GB of hydrological observation data collected by Environment Canada. The database is freely available from the Environment Canada website, however exctracting data can be difficult. This package provides tools to easily find and extract hydrological data from the HYDAT database.
+
+## Installation
+
+You can install hydatr from github with:
+
+```{r gh-installation, eval = FALSE}
+# install.packages("devtools")
+devtools::install_github("paleolimbot/hydatr")
+```
+
+## Getting the HYDAT Database
+
+The HYDAT database is about 1 GB in size, which is compressed into a 200 MB download from http://collaboration.cmc.ec.gc.ca/cmc/hydrometrics/www/ . The hydat package will happily download and extract this form you.
+
+```{r, eval = FALSE}
+library(hydatr)
+hydat_download() # downloads the database from environment canada (10 min)
+hydat_extract() # extracts the downloaded database into readable form
+hydat_load() # loads the database (you'll need to call this one each time you load the package)
+```
+
+```{r, include = FALSE}
+library(hydatr)
+hydat_load_test_db()
+```
+
+## Finding Hydro Stations
+
+Find hydro sites:
+
+```{r}
+hydat_find_stations("lower sackville, NS", year = 1999:2012)
+```
+
+Get detailed information about hydro sites:
+
+```{r}
+as.list(hydat_station_info("01EJ004"))
+```
+
+## Extracting Data
+
+The following methods extract data from the database given the correct station number:
+
+```{r}
+hydat_flow_monthly("01AD001")
+hydat_flow_daily("01AD001")
+hydat_level_monthly("01AD003")
+hydat_level_daily("01AD003")
+hydat_sed_monthly("01AF006")
+hydat_sed_daily("01AF006")
+```
+
+## Feedback
+
+The `hydatr` package is in development, so feel free to send feedback to dewey@fishandwhistle.net 

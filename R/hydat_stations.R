@@ -27,7 +27,7 @@ hydat_find_stations <- function(x, year = NULL, limit = 10, db = hydat_get_db())
   if(!is_hydat(db)) stop("db must be a valid src_hydat loaded using hydat_load()")
 
   if(is.character(x) && length(x) == 1) {
-    loc <- prettymapr::geocode(x, progress = "none", quiet = TRUE)[c("lon", "lat")]
+    loc <- suppressMessages(prettymapr::geocode(x, progress = "none", quiet = TRUE))[c("lon", "lat")]
   } else if(is.numeric(x) && length(x) == 2) {
     loc <- data.frame(lon = x[1], lat = x[2])
   } else {
@@ -84,7 +84,7 @@ hydat_station_info <- function(stationid = NULL, db = hydat_get_db()) {
   if(!is_hydat(db)) stop("db must be a valid src_hydat loaded using hydat_load()")
 
   # calculate ranges
-  YEAR_FROM <- NULL; rm(YEAR_FROM); YEAR_TO <- NULL; rm(YEAR_FROM)
+  YEAR_FROM <- NULL; rm(YEAR_FROM); YEAR_TO <- NULL; rm(YEAR_TO)
   year_range_stations <- dplyr::tbl(db, "STN_DATA_RANGE") %>%
     dplyr::group_by_("STATION_NUMBER") %>%
     dplyr::summarise(YEAR_FROM = min(YEAR_FROM), YEAR_TO = max(YEAR_TO))
@@ -111,5 +111,6 @@ hydat_station_info <- function(stationid = NULL, db = hydat_get_db()) {
   # join with year ranges and collect
   stations %>%
     dplyr::left_join(year_range_stations, by = "STATION_NUMBER") %>%
+    dplyr::rename_(FIRST_YEAR = "YEAR_FROM", LAST_YEAR = "YEAR_TO") %>%
     dplyr::collect()
 }

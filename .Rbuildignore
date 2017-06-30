@@ -2,3 +2,5 @@
 ^\.Rproj\.user$
 ^data-raw$
 ^Hydat_sqlite3_[0-9]{8}\.(zip|db)$
+^README\.Rmd$
+^README-.*\.png$
