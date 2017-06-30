@@ -1,0 +1,15 @@
+Package: hydatr
+Type: Package
+Title: An R Interface to the Environment Canada HYDAT database
+Version: 0.1.9000
+Author: Dewey Dunnington <dewey@fishandwhistle.net>
+Maintainer: Dewey Dunnington <dewey@fishandwhistle.net>
+Description: The HYDAT database contains over 1 GB of hydrological
+  observation data collected by Environment Canada. The database
+  is freely available from the Environment Canada website, however
+  exctracting data can be difficult. This package provides tools to
+  easily find and extract hydrological data from the Hydat database.
+License: GPL-3
+Encoding: UTF-8
+LazyData: true
+RoxygenNote: 6.0.1

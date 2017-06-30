@@ -1,0 +1,7 @@
+.Rproj.user
+.Rhistory
+.RData
+.Ruserdata
+.DS_Store
+Hydat_sqlite3_*.zip
+Hydat_sqlite3_*.db
