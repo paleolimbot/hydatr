@@ -23,11 +23,11 @@ hydat_regex <- "Hydat_sqlite3_([0-9]{8})"
 #' hydat_download()
 #' }
 #'
-#'
 hydat_download <- function(destination = ".", overwrite = NA, quiet = FALSE) {
 
   source_page <- "http://collaboration.cmc.ec.gc.ca/cmc/hydrometrics/www/"
 
+  . <- NULL; rm(.) # cmd hack
   hydat_fname <- source_page %>%
     curl::curl_fetch_memory() %>%
     .$content %>%
@@ -38,7 +38,7 @@ hydat_download <- function(destination = ".", overwrite = NA, quiet = FALSE) {
 
   if(length(hydat_fname) == 0) stop("Could not find latest Hydat download link at ", source_page)
   if(length(hydat_fname) > 1) stop("Found more than one possible Hydat download at ", source_page)
-  browser()
+
   hydat_url <- paste0(source_page, hydat_fname)
 
   if(dir.exists(destination)) {
@@ -108,7 +108,7 @@ hydat_list_files <- function(source = ".", ext = ".db", full.names = TRUE, recur
 #' @export
 #'
 #' @examples
-#' \dontrun {
+#' \dontrun{
 #' # hydat_download() takes about 10 minutes; hydat_extract() takes about 2 minutes
 #' hydat_download()
 #' hydat_extract()
@@ -163,7 +163,7 @@ hydat_extract <- function(source = ".", destination = ".", overwrite = NA) {
   }
 
   # extract the archive to destination
-  unzip(source_file, exdir = destination, overwrite = TRUE, files = "Hydat.sqlite3")
+  utils::unzip(source_file, exdir = destination, overwrite = TRUE, files = "Hydat.sqlite3")
   if(!file.exists(output_file)) stop("Unzip of ", source_file, " failed!")
 
   file.rename(output_file, final_output_file)
@@ -186,7 +186,7 @@ hydat_extract <- function(source = ".", destination = ".", overwrite = NA) {
 #' @export
 #'
 #' @examples
-#' \dontrun {
+#' \dontrun{
 #' # hydat_download() takes about 10 minutes; hydat_extract() takes about 2 minutes
 #' hydat_download()
 #' hydat_extract()
@@ -234,7 +234,7 @@ hydat_load <- function(source = ".", set = TRUE) {
 #' @export
 #'
 #' @examples
-#' \dontrun {
+#' \dontrun{
 #' hydat_db <- hydat_load()
 #' is_hydat(hydat_db)
 #' }
@@ -256,6 +256,8 @@ hydatr_state$hydat_db <- NULL
 #' with \code{set = TRUE}.
 #'
 #' @param x A hydat datbase loaded using \link{hydat_load}.
+#' @param set Shoult the temporary database be set as the internal
+#'   database?
 #'
 #' @return The hydat database or the previous hydat database.
 #' @export
@@ -278,7 +280,13 @@ hydat_set_db <- function(x) {
 
 #' @rdname hydat_set_db
 #' @export
-hydat_get_db <- function(quiet = FALSE) {
+hydat_get_db <- function() {
   hydatr_state$hydat_db
+}
+
+#' @rdname hydat_set_db
+#' @export
+hydat_load_test_db <- function(set = TRUE) {
+  hydat_load(system.file("Hydat_sqlite3_99999999.db", package = "hydatr"))
 }
 

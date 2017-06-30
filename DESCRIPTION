@@ -9,6 +9,9 @@ Description: The HYDAT database contains over 1 GB of hydrological
   is freely available from the Environment Canada website, however
   exctracting data can be difficult. This package provides tools to
   easily find and extract hydrological data from the HYDAT database.
+Imports: stringr, xml2, curl, dplyr, RSQLite, magrittr, utils, lubridate, plyr,
+    tibble, reshape2
+Suggests: testthat
 License: GPL-3
 Encoding: UTF-8
 LazyData: true
