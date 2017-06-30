@@ -4,9 +4,7 @@
 library(hydatr)
 library(dplyr)
 
-hydat_download() %>%
-  hydat_extract() %>%
-  hydat_load()
+hydat_load()
 
 if(!is_hydat(hydat_get_db())) stop("Hydat database wasn't loaded!")
 

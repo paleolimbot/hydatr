@@ -10,7 +10,7 @@ Description: The HYDAT database contains over 1 GB of hydrological
   exctracting data can be difficult. This package provides tools to
   easily find and extract hydrological data from the HYDAT database.
 Imports: stringr, xml2, curl, dplyr, RSQLite, magrittr, utils, lubridate, plyr,
-    tibble, reshape2
+    tibble, reshape2, prettymapr
 Suggests: testthat
 License: GPL-3
 Encoding: UTF-8

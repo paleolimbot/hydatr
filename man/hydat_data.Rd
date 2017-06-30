@@ -30,7 +30,7 @@ hydat_sed_daily(stationid, year = NULL, month = 1:12, day = 1:31,
 \arguments{
 \item{stationid}{The station identifier(s) for which data should be loaded}
 
-\item{year}{The year or range of years for which data should be loaded}
+\item{year}{The year or range of years for which data should be loaded, or NULL for all}
 
 \item{month}{The month or range of months for which data should be loaded}
 
@@ -40,7 +40,7 @@ hydat_sed_daily(stationid, year = NULL, month = 1:12, day = 1:31,
 \item{day}{The day or range of days for which data should be loaded}
 }
 \value{
-A data.frame of observations
+A data.frame (tibble, actually) of observations
 }
 \description{
 Retreive HYDAT Data
