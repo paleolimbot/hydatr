@@ -113,7 +113,16 @@ hydat_list_files <- function(source = ".", ext = ".db", full.names = TRUE, recur
 #' hydat_download()
 #' hydat_extract()
 #' }
-hydat_extract <- function(source = ".", destination = ".", overwrite = NA) {
+hydat_extract <- function(source = ".", destination = NULL, overwrite = NA) {
+
+  # destination should be the same directory as the source
+  if(is.null(destination)) {
+    if(dir.exists(source)) {
+      destination <- source
+    } else {
+      destination <- dirname(source)
+    }
+  }
 
   # extract the hydat database from the downloaded file
   if(dir.exists(source)) {
@@ -149,14 +158,14 @@ hydat_extract <- function(source = ".", destination = ".", overwrite = NA) {
 
   # if overwrite = NA, don't extract
   if(file.exists(final_output_file)) {
-    if(identical(overwrite, TRUE)) {
-      stop("Output file ", final_output_file, " already exists (use overwrite = FALSE to re-extract, or ",
+    if(identical(overwrite, FALSE)) {
+      stop("Output file ", final_output_file, " already exists (use overwrite = TRUE to re-extract, or ",
            "overwrite = NA to skip extraction)")
     } else if(identical(overwrite, NA)) {
       message("Using previously extracted version of ", source_file)
       return(final_output_file)
-    } else if(identical(overwrite, FALSE)) {
-      # do nothing
+    } else if(identical(overwrite, TRUE)) {
+      # do nothing to stop extraction
     } else {
       stop("Unrecognized overwrite option: ", overwrite)
     }
@@ -287,6 +296,6 @@ hydat_get_db <- function() {
 #' @rdname hydat_set_db
 #' @export
 hydat_load_test_db <- function(set = TRUE) {
-  hydat_load(system.file("Hydat_sqlite3_99999999.db", package = "hydatr"))
+  hydat_load(system.file("Hydat_sqlite3_99999999.db", package = "hydatr"), set = set)
 }
 

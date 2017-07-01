@@ -4,7 +4,7 @@
 \alias{hydat_extract}
 \title{Extract a Zipped Hydat Database}
 \usage{
-hydat_extract(source = ".", destination = ".", overwrite = NA)
+hydat_extract(source = ".", destination = NULL, overwrite = NA)
 }
 \arguments{
 \item{source}{The directory that contains the hydat database or the hydat zip file.}
