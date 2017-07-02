@@ -61,7 +61,11 @@ hydat_find_stations <- function(x, year = NULL, limit = 10, db = hydat_get_db())
   }
 
   # return only limit number of rows
-  stations %>% utils::head(limit)
+  if(!is.null(limit)) {
+    stations %>% utils::head(limit)
+  } else {
+    stations
+  }
 }
 
 
@@ -104,13 +108,18 @@ hydat_station_info <- function(stationid = NULL, db = hydat_get_db()) {
            "RHBN", "REAL_TIME", "DATUM_ID")
 
   if(!is.null(stationid)) {
+    stationid <- as.character(stationid)
     STATION_NUMBER <- NULL; rm(STATION_NUMBER)
-    stations <- stations %>% dplyr::filter(STATION_NUMBER == stationid)
+    stations <- stations %>%
+      dplyr::collect() %>%
+      dplyr::filter(STATION_NUMBER %in% stationid) %>%
+      dplyr::right_join(tibble::tibble(STATION_NUMBER = stationid),
+                        by = "STATION_NUMBER")
   }
 
   # join with year ranges and collect
   stations %>%
-    dplyr::left_join(year_range_stations, by = "STATION_NUMBER") %>%
+    dplyr::left_join(year_range_stations, by = "STATION_NUMBER", copy = TRUE) %>%
     dplyr::rename_(FIRST_YEAR = "YEAR_FROM", LAST_YEAR = "YEAR_TO") %>%
     dplyr::collect()
 }
