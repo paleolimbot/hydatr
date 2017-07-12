@@ -153,7 +153,7 @@ test_that("the hydat test database gets loaded", {
   # make sure set = TRUE is respected
   hydat_load_test_db(set = TRUE)
   expect_is(hydat_get_db(), "src_hydat")
-  expect_is(hydat_get_db(), "src_sqlite")
+  expect_is(hydat_get_db(), "src_sql")
 
   # check tables
   expect_true(all(c("AGENCY_LIST", "ANNUAL_INSTANT_PEAKS", "ANNUAL_STATISTICS",

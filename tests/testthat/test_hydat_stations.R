@@ -62,7 +62,8 @@ test_that("the year filter is respected", {
 
 test_that("column names for station_find are correct", {
   hydat_load_test_db()
-  cols <- c("STATION_NUMBER", "dist_from_query_km", "STATION_NAME", "FIRST_YEAR", "LAST_YEAR")
+  cols <- c("STATION_NUMBER", "dist_from_query_km", "STATION_NAME", "FIRST_YEAR", "LAST_YEAR",
+            "LONGITUDE", "LATITUDE", "DRAINAGE_AREA_GROSS")
   expect_equal(colnames(hydat_find_stations(c(-64.36449, 45.09123), limit = NULL)),
                cols)
   expect_equal(colnames(hydat_find_stations(c(-64.36449, 45.09123), limit = 10)),

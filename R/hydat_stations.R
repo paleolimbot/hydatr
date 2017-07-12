@@ -21,8 +21,6 @@
 #' hydat_find_stations("Daaquam, QC", year = 1988:1991)
 #'
 #'
-#' @importFrom dplyr everything
-#'
 hydat_find_stations <- function(x, year = NULL, limit = 10, db = hydat_get_db()) {
   if(!is_hydat(db)) stop("db must be a valid src_hydat loaded using hydat_load()")
 
@@ -49,7 +47,7 @@ hydat_find_stations <- function(x, year = NULL, limit = 10, db = hydat_get_db())
     dplyr::mutate(dist_from_query_km = geodist(loc$lon, loc$lat, LONGITUDE, LATITUDE) / 1000) %>%
     dplyr::arrange_("dist_from_query_km") %>%
     dplyr::select_("STATION_NUMBER", "dist_from_query_km", "STATION_NAME", FIRST_YEAR = "YEAR_FROM",
-                  LAST_YEAR = "YEAR_TO", everything())
+                  LAST_YEAR = "YEAR_TO", "LONGITUDE", "LATITUDE", "DRAINAGE_AREA_GROSS")
 
   # filter by year
   FIRST_YEAR <- NULL; rm(FIRST_YEAR); LAST_YEAR <- NULL; rm(LAST_YEAR)
@@ -120,6 +118,6 @@ hydat_station_info <- function(stationid = NULL, db = hydat_get_db()) {
   # join with year ranges and collect
   stations %>%
     dplyr::left_join(year_range_stations, by = "STATION_NUMBER", copy = TRUE) %>%
-    dplyr::rename_(FIRST_YEAR = "YEAR_FROM", LAST_YEAR = "YEAR_TO") %>%
-    dplyr::collect()
+    dplyr::collect() %>%
+    dplyr::rename_(FIRST_YEAR = "YEAR_FROM", LAST_YEAR = "YEAR_TO")
 }
