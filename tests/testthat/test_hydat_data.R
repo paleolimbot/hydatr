@@ -1,21 +1,10 @@
 
 context("hydat data")
 
-hydat_flow_daily("01DC001", year = NULL)
-
-allain_flow <- tbl(hydat_get_db(), "DLY_FLOWS") %>%
-  filter(STATION_NUMBER == "01DC001") %>%
-  View()
-
-hydat_load_test_db()
-hydat_flow_monthly("01AD001")
-hydat_flow_daily("01AD001")
-hydat_level_monthly("01AD003")
-hydat_level_daily("01AD003")
-hydat_sed_monthly("01AF006")
-hydat_sed_daily("01AF006")
-
 test_that("data functions generate data frames", {
+  # load the test database
+  hydat_load_test_db()
+
   expect_is(hydat_flow_monthly("01AD001"), "data.frame")
   expect_is(hydat_flow_daily("01AD001"), "data.frame")
   expect_is(hydat_level_monthly("01AD003"), "data.frame")
@@ -25,7 +14,10 @@ test_that("data functions generate data frames", {
 })
 
 test_that("data functions filter by year month and day properly", {
+  # load the test database
+  hydat_load_test_db()
 
+  # each data function family is tested using this generic function tester
   test_date_filtering <- function(data_monthly, data_daily, test_stationid,
                                   year_low, year_high) {
     # single year
@@ -121,11 +113,46 @@ test_that("data functions filter by year month and day properly", {
   test_date_filtering(hydat_sed_monthly, hydat_sed_daily, "01AF006", 1971, 1973)
 })
 
+test_that("multiple sites are included in data output", {
+  hydat_load_test_db()
+
+  flow_m <- hydat_flow_monthly(c("01AD001", "01AA002"))
+  expect_true(setequal(flow_m$STATION_NUMBER, c("01AD001", "01AA002")))
+  flow_d <- hydat_flow_daily(c("01AD001", "01AA002"))
+  expect_true(setequal(flow_d$STATION_NUMBER, c("01AD001", "01AA002")))
+  level_m <- hydat_level_monthly(c("01AD003", "01AD004"))
+  expect_true(setequal(level_m$STATION_NUMBER, c("01AD003", "01AD004")))
+  level_d <- hydat_level_daily(c("01AD003", "01AD004"))
+  expect_true(setequal(level_d$STATION_NUMBER, c("01AD003", "01AD004")))
+  sed_m <- hydat_sed_monthly(c("01AF006", "01AJ006"))
+  expect_true(setequal(sed_m$STATION_NUMBER, c("01AF006", "01AJ006")))
+  sed_d <- hydat_sed_daily(c("01AJ006", "01AF006"))
+  expect_true(setequal(sed_m$STATION_NUMBER, c("01AF006", "01AJ006")))
+})
+
 test_that("station numbers that are not found generate the proper error", {
-  hydat_flow_monthly("not_a_station")
-  hydat_flow_daily("not_a_station")
-  hydat_level_monthly("not_a_station")
-  hydat_level_daily("not_a_station")
-  hydat_sed_monthly("not_a_station")
-  hydat_sed_daily("not_a_station")
+  # load the test database
+  hydat_load_test_db()
+
+  # check that errors are thrown when a station doesn't exist
+  expect_error(hydat_flow_monthly("not_a_station"),
+               "Station 'not_a_station' does not exist in table 'DLY_FLOWS'")
+  expect_error(hydat_flow_daily("not_a_station"),
+               "Station 'not_a_station' does not exist in table 'DLY_FLOWS'")
+  expect_error(hydat_level_monthly("not_a_station"),
+               "Station 'not_a_station' does not exist in table 'DLY_LEVELS'")
+  expect_error(hydat_level_daily("not_a_station"),
+               "Station 'not_a_station' does not exist in table 'DLY_LEVELS'")
+  expect_error(hydat_sed_monthly("not_a_station"),
+               "Station 'not_a_station' does not exist in table 'SED_DLY_LOADS'")
+  expect_error(hydat_sed_daily("not_a_station"),
+               "Station 'not_a_station' does not exist in table 'SED_DLY_LOADS'")
+
+  # check that errors are not thrown when a year doesn't exist but the station does
+  expect_silent(hydat_flow_monthly("01AD001", year = 1800))
+  expect_silent(hydat_flow_daily("01AD001", year = 1800))
+  expect_silent(hydat_level_monthly("01AD003", year = 1800))
+  expect_silent(hydat_level_daily("01AD003", year = 1800))
+  expect_silent(hydat_sed_monthly("01AF006", year = 1800))
+  expect_silent(hydat_sed_daily("01AF006", year = 1800))
 })

@@ -85,11 +85,17 @@ hydat_data_base <- function(table, stationid, cols, year=NULL, month=1:12, db = 
   # user plyr to vectorize by stationid, since the %in% operator doesn't work for sqlite
 
   monthly <- plyr::adply(data.frame(STATION_NUMBER=stationid), 1, .fun=function(row) {
+    # check that station exists
+    df <- dplyr::tbl(db, table) %>%
+      dplyr::filter(STATION_NUMBER == row$STATION_NUMBER)
+
+    df_head <- df %>% utils::head() %>% dplyr::collect()
+    if(nrow(df_head) == 0) stop("Station '", row$STATION_NUMBER, "' does not exist in table '",
+                                table, "'")
+
     # select appropriate rows
-    df <- db %>%
-      dplyr::tbl(table) %>%
-      dplyr::filter(STATION_NUMBER == row$STATION_NUMBER,
-                    MONTH >= month_min, MONTH <= month_max,
+    df <- df %>%
+      dplyr::filter(MONTH >= month_min, MONTH <= month_max,
                     YEAR >= year_min, YEAR <= year_max) %>%
       dplyr::left_join(dplyr::tbl(db, "STATIONS"), by="STATION_NUMBER")
 
@@ -125,7 +131,7 @@ hydat_data_monthly <- function(table, stationid, year=NULL, month=1:12, db = hyd
 
   # rename ambiguous MIN and MAX columns, add dates, rearrange cols
   df %>%
-    dplyr::mutate(DATE=lubridate::ymd(paste(YEAR, MONTH, 1))) %>%
+    dplyr::mutate(DATE=suppressWarnings(lubridate::ymd(paste(YEAR, MONTH, MONTH / MONTH)))) %>%
     dplyr::select(STATION_NUMBER, STATION_NAME, YEAR, MONTH, DATE,
                   MONTHLY_MEAN, MONTHLY_TOTAL, DAILY_MIN = MIN, DAILY_MAX = MAX) %>%
     tibble::as_tibble()
@@ -171,7 +177,6 @@ hydat_data_daily <- function(table, colprefix, symbolprefix, stationid,
   daily <- daily %>%
     dplyr::mutate(DATE=lubridate::ymd(paste(YEAR, MONTH, DAY), quiet=TRUE)) %>%
     dplyr::filter(!is.na(DATE), DAY %in% day) %>%
-    dplyr::arrange(STATION_NUMBER, YEAR, MONTH, DAY) %>%
     tibble::as_tibble()
 
   # return the data frame with columns ordered reasonably

@@ -299,3 +299,38 @@ hydat_load_test_db <- function(set = TRUE) {
   hydat_load(system.file("Hydat_sqlite3_99999999.db", package = "hydatr"), set = set)
 }
 
+#' Low-level access to HYDAT database tables
+#'
+#' This function gives low-level access to the underlying HYDAT tables used by
+#' other functions. Many of these tables are too large to load into memory,
+#' so it is best to use dplyr to \link[dplyr]{filter} them before using
+#' \link[dplyr]{collect} to read them into memory.
+#'
+#' @param table The name of the table. As of this writing, the list of table
+#'   names that can be used includes AGENCY_LIST, ANNUAL_INSTANT_PEAKS,
+#'   ANNUAL_STATISTICS, CONCENTRATION_SYMBOLS, DATA_SYMBOLS, DATA_TYPES,
+#'   DATUM_LIST, DLY_FLOWS, DLY_LEVELS, MEASUREMENT_CODES, OPERATION_CODES,
+#'   PEAK_CODES, PRECISION_CODES, REGIONAL_OFFICE_LIST, SAMPLE_REMARK_CODES,
+#'   SED_DATA_TYPES, SED_DLY_LOADS, SED_DLY_SUSCON, SED_SAMPLES,
+#'   SED_SAMPLES_PSD, SED_VERTICAL_LOCATION, SED_VERTICAL_SYMBOLS, STATIONS,
+#'   STN_DATA_COLLECTION, STN_DATA_RANGE, STN_DATUM_CONVERSION,
+#'   STN_DATUM_UNRELATED, STN_OPERATION_SCHEDULE, STN_REGULATION, STN_REMARKS,
+#'   STN_REMARK_CODES, STN_STATUS_CODES, and VERSION
+#' @param db The hydat database object to use (you will want to use
+#'   \link{hydat_load} before using these functions)
+#'
+#' @return A tbl_sql object (use dplyr to work with these objects)
+#' @export
+#'
+#' @examples
+#' hydat_load_test_db()
+#' hydat_tbl("STATIONS")
+#'
+hydat_tbl <- function(table, db = hydat_get_db()) {
+  # check db
+  if(!is_hydat(db)) stop("db must be a valid src_hydat loaded using hydat_load()")
+
+  # return result of dplyr::tbl
+  dplyr::tbl(db, table)
+}
+
