@@ -28,13 +28,9 @@ test_that("data functions filter by year month and day properly", {
 
     # non-connected years
     yr_year_low_year_high <- data_monthly(test_stationid, year = c(year_low, year_high))
-    expect_true(all(yr_year_low_year_high$YEAR %in% c(year_low, year_high)))
-    expect_equal(max(yr_year_low_year_high$YEAR), year_high)
-    expect_equal(min(yr_year_low_year_high$YEAR), year_low)
+    expect_true(setequal(yr_year_low_year_high$YEAR, c(year_low, year_high)))
     yr_year_low_year_high_daily <- data_daily(test_stationid, year = c(year_low, year_high))
-    expect_true(all(yr_year_low_year_high_daily$YEAR %in% c(year_low, year_high)))
-    expect_equal(max(yr_year_low_year_high_daily$YEAR), year_high)
-    expect_equal(min(yr_year_low_year_high_daily$YEAR), year_low)
+    expect_true(setequal(yr_year_low_year_high_daily$YEAR, c(year_low, year_high)))
 
     # single month
     mo_5 <- data_monthly(test_stationid, month = 5)
@@ -44,13 +40,9 @@ test_that("data functions filter by year month and day properly", {
 
     # non-connected months
     mo_5_7 <- data_monthly(test_stationid, month = c(5, 7))
-    expect_true(all(mo_5_7$MONTH %in% c(5, 7)))
-    expect_equal(max(mo_5_7$MONTH), 7)
-    expect_equal(min(mo_5_7$MONTH), 5)
+    expect_true(setequal(mo_5_7$MONTH, c(5, 7)))
     mo_5_7_daily <- data_daily(test_stationid, month = c(5, 7))
-    expect_true(all(mo_5_7_daily$MONTH %in% c(5, 7)))
-    expect_equal(max(mo_5_7_daily$MONTH), 7)
-    expect_equal(min(mo_5_daily$MONTH), 5)
+    expect_true(setequal(mo_5_7_daily$MONTH, c(5, 7)))
 
     # single day
     day_5 <- data_daily(test_stationid, day = 5)
@@ -58,9 +50,7 @@ test_that("data functions filter by year month and day properly", {
 
     # non-connected days
     day_5_7 <- data_daily(test_stationid, day = c(5, 7))
-    expect_true(all(day_5_7$DAY %in% c(5, 7)))
-    expect_equal(max(day_5_7$DAY), 7)
-    expect_equal(min(day_5_7$DAY), 5)
+    expect_true(setequal(day_5_7$DAY, c(5, 7)))
 
     # single year and month
     ym_year_low_5 <- data_monthly(test_stationid, year = year_low, month = 5)
@@ -75,19 +65,12 @@ test_that("data functions filter by year month and day properly", {
     # non-connected year and month
     ym_nc <- data_monthly(test_stationid, year = c(year_low, year_high), month = c(5, 7))
     expect_equal(nrow(ym_nc), 4)
-    expect_true(all(ym_nc$YEAR %in% c(year_low, year_high)))
-    expect_true(all(ym_nc$MONTH %in% c(5, 7)))
-    expect_equal(max(ym_nc$YEAR), year_high)
-    expect_equal(min(ym_nc$YEAR), year_low)
-    expect_equal(max(ym_nc$MONTH), 7)
-    expect_equal(min(ym_nc$MONTH), 5)
+    expect_true(setequal(ym_nc$YEAR, c(year_low, year_high)))
+    expect_true(setequal(ym_nc$MONTH, c(5, 7)))
+
     ym_nc_daily <- data_daily(test_stationid, year = c(year_low, year_high), month = c(5, 7))
-    expect_true(all(ym_nc_daily$YEAR %in% c(year_low, year_high)))
-    expect_true(all(ym_nc_daily$MONTH %in% c(5, 7)))
-    expect_equal(max(ym_nc_daily$YEAR), year_high)
-    expect_equal(min(ym_nc_daily$YEAR), year_low)
-    expect_equal(max(ym_nc_daily$MONTH), 7)
-    expect_equal(min(ym_nc_daily$MONTH), 5)
+    expect_true(setequal(ym_nc_daily$YEAR, c(year_low, year_high)))
+    expect_true(setequal(ym_nc_daily$MONTH, c(5, 7)))
 
     # single year, month, and day
     ymd_daily <- data_daily(test_stationid, year = year_low, month = 5, day = 20)
@@ -98,14 +81,9 @@ test_that("data functions filter by year month and day properly", {
 
     # non-connected year month and day
     ymd_nc <- data_daily(test_stationid, year = c(year_low, year_high), month = c(5, 7), day = c(20, 23))
-    expect_true(all(ymd_nc$YEAR %in% c(year_low, year_high)))
-    expect_true(all(ymd_nc$MONTH %in% c(5, 7)))
-    expect_equal(max(ymd_nc$YEAR), year_high)
-    expect_equal(min(ymd_nc$YEAR), year_low)
-    expect_equal(max(ymd_nc$MONTH), 7)
-    expect_equal(min(ymd_nc$MONTH), 5)
-    expect_equal(max(ymd_nc$DAY), 23)
-    expect_equal(min(ymd_nc$DAY), 20)
+    expect_true(setequal(ymd_nc$YEAR, c(year_low, year_high)))
+    expect_true(setequal(ymd_nc$MONTH, c(5, 7)))
+    expect_true(setequal(ymd_nc$DAY, c(20, 23)))
   }
 
   test_date_filtering(hydat_flow_monthly, hydat_flow_daily, "01AD001", 1923, 1925)
@@ -149,10 +127,10 @@ test_that("station numbers that are not found generate the proper error", {
                "Station 'not_a_station' does not exist in table 'SED_DLY_LOADS'")
 
   # check that errors are not thrown when a year doesn't exist but the station does
-  expect_silent(hydat_flow_monthly("01AD001", year = 1800))
-  expect_silent(hydat_flow_daily("01AD001", year = 1800))
-  expect_silent(hydat_level_monthly("01AD003", year = 1800))
-  expect_silent(hydat_level_daily("01AD003", year = 1800))
-  expect_silent(hydat_sed_monthly("01AF006", year = 1800))
-  expect_silent(hydat_sed_daily("01AF006", year = 1800))
+  expect_is(hydat_flow_monthly("01AD001", year = 1800), "data.frame")
+  expect_is(hydat_flow_daily("01AD001", year = 1800), "data.frame")
+  expect_is(hydat_level_monthly("01AD003", year = 1800), "data.frame")
+  expect_is(hydat_level_daily("01AD003", year = 1800), "data.frame")
+  expect_is(hydat_sed_monthly("01AF006", year = 1800), "data.frame")
+  expect_is(hydat_sed_daily("01AF006", year = 1800), "data.frame")
 })
