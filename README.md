@@ -240,6 +240,73 @@ hydat_sed_daily("01AF006")
 #> # ... with 784 more rows, and 2 more variables: DATE <date>, LOAD <dbl>
 ```
 
+Advanced Functionality
+----------------------
+
+The package is built on top of `dplyr` and `RSQLite`, and also provides low-level access to the HYDAT database through these methods.
+
+``` r
+hydat_get_db() # gets the db that was loaded in hydat_load()
+#> src:  sqlite 3.11.1 [/Library/Frameworks/R.framework/Versions/3.3/Resources/library/hydatr/Hydat_sqlite3_99999999.db]
+#> tbls: AGENCY_LIST, ANNUAL_INSTANT_PEAKS, ANNUAL_STATISTICS,
+#>   CONCENTRATION_SYMBOLS, DATA_SYMBOLS, DATA_TYPES, DATUM_LIST, DLY_FLOWS,
+#>   DLY_LEVELS, MEASUREMENT_CODES, OPERATION_CODES, PEAK_CODES,
+#>   PRECISION_CODES, REGIONAL_OFFICE_LIST, SAMPLE_REMARK_CODES,
+#>   SED_DATA_TYPES, SED_DLY_LOADS, SED_DLY_SUSCON, SED_SAMPLES,
+#>   SED_SAMPLES_PSD, SED_VERTICAL_LOCATION, SED_VERTICAL_SYMBOLS,
+#>   sqlite_stat1, STATIONS, STN_DATA_COLLECTION, STN_DATA_RANGE,
+#>   STN_DATUM_CONVERSION, STN_DATUM_UNRELATED, STN_OPERATION_SCHEDULE,
+#>   STN_REGULATION, STN_REMARK_CODES, STN_REMARKS, STN_STATUS_CODES, VERSION
+```
+
+``` r
+hydat_tbl("ANNUAL_INSTANT_PEAKS") # gets the db that was loaded in hydat_load()
+#> # Source:   table<ANNUAL_INSTANT_PEAKS> [?? x 12]
+#> # Database: sqlite 3.11.1
+#> #   [/Library/Frameworks/R.framework/Versions/3.3/Resources/library/hydatr/Hydat_sqlite3_99999999.db]
+#>    STATION_NUMBER DATA_TYPE  YEAR PEAK_CODE PRECISION_CODE MONTH   DAY
+#>             <chr>     <chr> <int>     <chr>          <int> <int> <int>
+#>  1        01AD002         Q  1940         H             NA     5     5
+#>  2        01AD002         Q  1950         H             NA     4    23
+#>  3        01AD002         Q  1960         H             NA     5     8
+#>  4        01AD002         Q  1970         H             NA     5     3
+#>  5        01AD002         Q  1980         H             NA     4    16
+#>  6        01AD003         Q  1960         H             NA     5    12
+#>  7        01AD003         Q  1970         H             NA     5     4
+#>  8        01AD003         Q  1980         H             NA     4    18
+#>  9        01AD004         Q  1970         H             NA     5     3
+#> 10        01AD004         H  1980         H              8    12    13
+#> # ... with more rows, and 5 more variables: HOUR <int>, MINUTE <int>,
+#> #   TIME_ZONE <chr>, PEAK <dbl>, SYMBOL <chr>
+```
+
+Because the package is built on `dplyr`, using `dplyr` functions is a particularly good way to get the most out of the database.
+
+``` r
+library(dplyr)
+peaks <- hydat_tbl("ANNUAL_INSTANT_PEAKS") %>%
+  left_join(hydat_tbl("PEAK_CODES")) %>%
+  collect() %>%
+  mutate(DATE = lubridate::ymd(paste(YEAR, MONTH, DAY))) %>%
+  select(STATION_NUMBER, DATE, PEAK_CODE = PEAK_EN, PEAK)
+#> Warning: 7 failed to parse.
+peaks
+#> # A tibble: 1,000 x 4
+#>    STATION_NUMBER       DATE PEAK_CODE     PEAK
+#>             <chr>     <date>     <chr>    <dbl>
+#>  1        01AD002 1940-05-05   Maximum 2460.000
+#>  2        01AD002 1950-04-23   Maximum 1890.000
+#>  3        01AD002 1960-05-08   Maximum 2580.000
+#>  4        01AD002 1970-05-03   Maximum 2690.000
+#>  5        01AD002 1980-04-16   Maximum 1590.000
+#>  6        01AD003 1960-05-12   Maximum  203.000
+#>  7        01AD003 1970-05-04   Maximum  251.000
+#>  8        01AD003 1980-04-18   Maximum  125.000
+#>  9        01AD004 1970-05-03   Maximum 2810.000
+#> 10        01AD004 1980-12-13   Maximum  138.457
+#> # ... with 990 more rows
+```
+
 Feedback
 --------
 

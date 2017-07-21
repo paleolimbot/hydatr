@@ -74,6 +74,30 @@ hydat_sed_monthly("01AF006")
 hydat_sed_daily("01AF006")
 ```
 
+## Advanced Functionality
+
+The package is built on top of `dplyr` and `RSQLite`, and also provides low-level access to the HYDAT database through these methods.
+
+```{r}
+hydat_get_db() # gets the db that was loaded in hydat_load()
+```
+
+```{r}
+hydat_tbl("ANNUAL_INSTANT_PEAKS") # gets the db that was loaded in hydat_load()
+```
+
+Because the package is built on `dplyr`, using `dplyr` functions is a particularly good way to get the most out of the database.
+
+```{r, message=FALSE}
+library(dplyr)
+peaks <- hydat_tbl("ANNUAL_INSTANT_PEAKS") %>%
+  left_join(hydat_tbl("PEAK_CODES")) %>%
+  collect() %>%
+  mutate(DATE = lubridate::ymd(paste(YEAR, MONTH, DAY))) %>%
+  select(STATION_NUMBER, DATE, PEAK_CODE = PEAK_EN, PEAK)
+peaks
+```
+
 ## Feedback
 
 The `hydatr` package is in development, so feel free to send feedback to dewey@fishandwhistle.net 
