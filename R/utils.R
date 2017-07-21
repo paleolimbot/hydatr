@@ -102,3 +102,40 @@ geodist <- function(long1, lat1, long2=NULL, lat2=NULL, labels=NULL, labels2=NUL
     stop("Cannot produce matrix from data")
   }
 }
+
+
+#' Create A Continuous Date Sequnce
+#'
+#' @param year A vector of years
+#' @param month A vector of months (default, 1:12)
+#' @param day A vector of days (default, 1:31)
+#'
+#' @return A data.frame with columns YEAR, MONTH, DAY, and DATE
+#' @export
+#'
+#' @examples
+#' hydat_date_seq(2000:2011)
+#' hydat_month_seq(2000:2011)
+#'
+hydat_date_seq <- function(year, month = 1:12, day = 1:31) {
+  # create the "expected" output given year month and day input
+  YEAR <- NULL; rm(YEAR); MONTH <- NULL; rm(MONTH); DAY <- NULL; rm(DAY)
+  DATE <- NULL; rm(DATE)
+  expand.grid(YEAR = year, MONTH = month, DAY = day) %>%
+    dplyr::arrange(YEAR, MONTH, DAY) %>%
+    dplyr::mutate(DATE = suppressWarnings(lubridate::ymd(paste(YEAR, MONTH, DAY)))) %>%
+    dplyr::filter(!is.na(DATE)) %>%
+    tibble::as_tibble()
+}
+
+#' @rdname hydat_date_seq
+#' @export
+hydat_month_seq <- function(year, month = 1:12) {
+  # create the "expected" output given year month
+  YEAR <- NULL; rm(YEAR); MONTH <- NULL; rm(MONTH)
+  expand.grid(YEAR = year, MONTH = month) %>%
+    dplyr::arrange(YEAR, MONTH) %>%
+    dplyr::mutate(DATE = suppressWarnings(lubridate::ymd(paste(YEAR, MONTH, 1)))) %>%
+    tibble::as_tibble()
+}
+

@@ -27,7 +27,7 @@ devtools::install_github("paleolimbot/hydatr")
 
 ## Getting the HYDAT Database
 
-The HYDAT database is about 1 GB in size, which is compressed into a 200 MB download from http://collaboration.cmc.ec.gc.ca/cmc/hydrometrics/www/ . The hydat package will happily download and extract this form you.
+The HYDAT database is about 1 GB in size, which is compressed into a 200 MB download from http://collaboration.cmc.ec.gc.ca/cmc/hydrometrics/www/ . The hydat package will happily download and extract this for you.
 
 ```{r, eval = FALSE}
 library(hydatr)
@@ -49,10 +49,16 @@ Find hydro sites:
 hydat_find_stations("lower sackville, NS", year = 1999:2012)
 ```
 
-Get detailed information about hydro sites:
+Get detailed information about one hydro site:
 
 ```{r}
 as.list(hydat_station_info("01EJ004"))
+```
+
+Get detailed information about all the hydro sites:
+
+```{r}
+hydat_station_info()
 ```
 
 ## Extracting Data
