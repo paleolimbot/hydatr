@@ -36,7 +36,7 @@ hydat_find_stations <- function(x, year = NULL, limit = 10, db = hydat_get_db())
   YEAR_TO <- NULL; rm(YEAR_TO); YEAR_FROM <- NULL; rm(YEAR_FROM)
   year_range_stations <- dplyr::tbl(db, "STN_DATA_RANGE") %>%
     dplyr::group_by(STATION_NUMBER) %>%
-    dplyr::summarise(YEAR_FROM = min(YEAR_FROM), YEAR_TO = max(YEAR_TO))
+    dplyr::summarise(YEAR_FROM = min(YEAR_FROM, na.rm = TRUE), YEAR_TO = max(YEAR_TO, na.rm = TRUE))
 
   LONGITUDE <- NULL; rm(LONGITUDE); LATITUDE <- NULL; rm(LATITUDE)
   stations <- dplyr::tbl(db, "STATIONS") %>%
@@ -88,8 +88,8 @@ hydat_station_info <- function(stationid = NULL, db = hydat_get_db()) {
   # calculate ranges
   YEAR_FROM <- NULL; rm(YEAR_FROM); YEAR_TO <- NULL; rm(YEAR_TO)
   year_range_stations <- dplyr::tbl(db, "STN_DATA_RANGE") %>%
-    dplyr::group_by("STATION_NUMBER") %>%
-    dplyr::summarise(YEAR_FROM = min(YEAR_FROM), YEAR_TO = max(YEAR_TO))
+    dplyr::group_by(STATION_NUMBER) %>%
+    dplyr::summarise(YEAR_FROM = min(YEAR_FROM, na.rm = TRUE), YEAR_TO = max(YEAR_TO, na.rm = TRUE))
 
   # join stations tables together
   stations <- dplyr::tbl(db, "STATIONS") %>%
