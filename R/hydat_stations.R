@@ -22,6 +22,7 @@
 #'
 #'
 hydat_find_stations <- function(x, year = NULL, limit = 10, db = hydat_get_db()) {
+  if(is.null(db)) stop("hydat db is not loaded. Did you forget to run `hydat_load()`?")
   if(!is_hydat(db)) stop("db must be a valid src_hydat loaded using hydat_load()")
 
   if(is.character(x) && length(x) == 1) {
@@ -83,6 +84,7 @@ hydat_find_stations <- function(x, year = NULL, limit = 10, db = hydat_get_db())
 #' as.list(hydat_station_info("01AD012"))
 #'
 hydat_station_info <- function(stationid = NULL, db = hydat_get_db()) {
+  if(is.null(db)) stop("hydat db is not loaded. Did you forget to run `hydat_load()`?")
   if(!is_hydat(db)) stop("db must be a valid src_hydat loaded using hydat_load()")
 
   # calculate ranges
