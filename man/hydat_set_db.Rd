@@ -15,7 +15,7 @@ hydat_load_test_db(set = TRUE)
 \arguments{
 \item{x}{A hydat datbase loaded using \link{hydat_load}.}
 
-\item{set}{Shoult the temporary database be set as the internal
+\item{set}{Should the temporary database be set as the internal
 database?}
 }
 \value{

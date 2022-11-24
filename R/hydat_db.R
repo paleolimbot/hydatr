@@ -230,6 +230,7 @@ hydat_load <- function(source = ".", set = TRUE) {
   # Simply added a slot called "src_hydat" with value TRUE;
   # `is_hydat()` now checks if that slot exists.
   # See e.g. https://stackoverflow.com/questions/38265754/how-to-add-new-slot-to-already-existing-class
+  #attributes(db)$class[2] <- "src_hydat" # causes issues down the road
   attributes(sqlsource)$src_hydat <- TRUE
 
   # set the internal reference to the hydat database
@@ -257,7 +258,11 @@ hydat_load <- function(source = ".", set = TRUE) {
 is_hydat <- function(x) {
   #inherits(x, "src_hydat")
   # Update for S4 class of sqlsource: check if slot 'src_hydat' exists (and is TRUE)
-  x@src_hydat
+  if(class(x) == "SQLiteConnection") {
+    x@src_hydat
+  } else {
+      FALSE
+    }
 }
 
 # setup the package state environment
@@ -273,7 +278,7 @@ hydatr_state$hydat_db <- NULL
 #' with \code{set = TRUE}.
 #'
 #' @param x A hydat datbase loaded using \link{hydat_load}.
-#' @param set Shoult the temporary database be set as the internal
+#' @param set Should the temporary database be set as the internal
 #'   database?
 #'
 #' @return The hydat database or the previous hydat database.

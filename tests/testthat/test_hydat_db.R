@@ -128,8 +128,23 @@ test_that("hydat_extract works with directories and files", {
 })
 
 test_that("is_hydat responds to the correct class", {
-  expect_true(is_hydat(structure(1, class = "src_hydat")))
-  expect_false(is_hydat(structure(1, class = "not_src_hydat")))
+  # Almost certainly a better way of testing/managing s4 classes/slots
+  is_src_hydat <- new("SQLiteConnection")
+  attributes(is_src_hydat)$src_hydat <- TRUE
+
+  not_src_hydat1 <- new("SQLiteConnection")
+  attributes(not_src_hydat1)$src_hydat <- FALSE
+
+  not_src_hydat2 <- structure(1, class = "data.frame")
+  attributes(not_src_hydat2)$src_hydat <- FALSE
+
+  not_src_hydat3 <- structure(1, class = "data.frame")
+  attributes(not_src_hydat3)$src_hydat <- TRUE
+
+  expect_true(is_hydat(is_src_hydat))
+  expect_false(is_hydat(not_src_hydat1))
+  expect_false(is_hydat(not_src_hydat2))
+  expect_false(is_hydat(not_src_hydat3))
 })
 
 test_that("set hydat db won't set something that isn't an src_hydat", {
