@@ -4,8 +4,12 @@
 \alias{hydat_list_files}
 \title{List Hydat files}
 \usage{
-hydat_list_files(source = ".", ext = ".db", full.names = TRUE,
-  recursive = FALSE)
+hydat_list_files(
+  source = ".",
+  ext = ".db",
+  full.names = TRUE,
+  recursive = FALSE
+)
 }
 \arguments{
 \item{source}{The directory to search for Hydat files}
