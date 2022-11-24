@@ -223,8 +223,14 @@ hydat_load <- function(source = ".", set = TRUE) {
   }
 
   # load using dplyr::src_sqlite
-  sqlsource <- dplyr::src_sqlite(source_file)
-  class(sqlsource) <- c("src_hydat", class(sqlsource))
+  #sqlsource <- dplyr::src_sqlite(source_file)
+  sqlsource <- DBI::dbConnect(RSQLite::SQLite(), source_file)
+  #class(sqlsource) <- c("src_hydat", class(sqlsource))
+  # There is probably a better way to set S4 class...
+  # Simply added a slot called "src_hydat" with value TRUE;
+  # `is_hydat()` now checks if that slot exists.
+  # See e.g. https://stackoverflow.com/questions/38265754/how-to-add-new-slot-to-already-existing-class
+  attributes(sqlsource)$src_hydat <- TRUE
 
   # set the internal reference to the hydat database
   if(set) {
@@ -249,7 +255,9 @@ hydat_load <- function(source = ".", set = TRUE) {
 #' }
 #'
 is_hydat <- function(x) {
-  inherits(x, "src_hydat")
+  #inherits(x, "src_hydat")
+  # Update for S4 class of sqlsource: check if slot 'src_hydat' exists (and is TRUE)
+  x@src_hydat
 }
 
 # setup the package state environment
