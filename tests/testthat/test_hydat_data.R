@@ -127,17 +127,17 @@ test_that("station numbers that are not found generate the proper error", {
                "Station 'not_a_station' does not exist in table 'SED_DLY_LOADS'")
 
   # check that errors are thrown when multiple stations don't exist
-  expect_error(hydat_flow_monthly("not_a_station", "also_not_a_station"),
+  expect_error(hydat_flow_monthly(c("not_a_station", "also_not_a_station")),
                "Stations 'not_a_station', 'also_not_a_station' do not exist in table 'DLY_FLOWS'")
-  expect_error(hydat_flow_daily("not_a_station", "also_not_a_station"),
+  expect_error(hydat_flow_daily(c("not_a_station", "also_not_a_station")),
                "Stations 'not_a_station', 'also_not_a_station' do not exist in table 'DLY_FLOWS'")
-  expect_error(hydat_level_monthly("not_a_station", "also_not_a_station"),
+  expect_error(hydat_level_monthly(c("not_a_station", "also_not_a_station")),
                "Stations 'not_a_station', 'also_not_a_station' do not exist in table 'DLY_LEVELS'")
-  expect_error(hydat_level_daily("not_a_station", "also_not_a_station"),
+  expect_error(hydat_level_daily(c("not_a_station", "also_not_a_station")),
                "Stations 'not_a_station', 'also_not_a_station' do not exist in table 'DLY_LEVELS'")
-  expect_error(hydat_sed_monthly("not_a_station", "also_not_a_station"),
+  expect_error(hydat_sed_monthly(c("not_a_station", "also_not_a_station")),
                "Stations 'not_a_station', 'also_not_a_station' do not exist in table 'SED_DLY_LOADS'")
-  expect_error(hydat_sed_daily("not_a_station", "also_not_a_station"),
+  expect_error(hydat_sed_daily(c("not_a_station", "also_not_a_station")),
                "Stations 'not_a_station', 'also_not_a_station' do not exist in table 'SED_DLY_LOADS'")
 
   # check that errors are not thrown when a year doesn't exist but the station does
