@@ -133,31 +133,45 @@ test_that("hydat_extract works with directories and files", {
   unlink(new_tmp_dir, recursive = TRUE)
 })
 
+# Create objects to test upon
+# Almost certainly a better way of testing/managing s4 classes/slots
+is_src_hydat <- new("SQLiteConnection")
+attributes(is_src_hydat)$src_hydat <- TRUE
+
+not_src_hydat1 <- new("SQLiteConnection")
+attributes(not_src_hydat1)$src_hydat <- FALSE
+
+not_src_hydat2 <- structure(1, class = "data.frame")
+attributes(not_src_hydat2)$src_hydat <- FALSE
+
+not_src_hydat3 <- structure(1, class = "data.frame")
+attributes(not_src_hydat3)$src_hydat <- TRUE
+
 test_that("is_hydat responds to the correct class", {
-  # Almost certainly a better way of testing/managing s4 classes/slots
-  is_src_hydat <- new("SQLiteConnection")
-  attributes(is_src_hydat)$src_hydat <- TRUE
-
-  not_src_hydat1 <- new("SQLiteConnection")
-  attributes(not_src_hydat1)$src_hydat <- FALSE
-
-  not_src_hydat2 <- structure(1, class = "data.frame")
-  attributes(not_src_hydat2)$src_hydat <- FALSE
-
-  not_src_hydat3 <- structure(1, class = "data.frame")
-  attributes(not_src_hydat3)$src_hydat <- TRUE
-
   expect_true(is_hydat(is_src_hydat))
   expect_false(is_hydat(not_src_hydat1))
   expect_false(is_hydat(not_src_hydat2))
   expect_false(is_hydat(not_src_hydat3))
 })
 
+# Create objects to test upon
+# Almost certainly a better way of testing/managing s4 classes/slots
+is_src_hydat <- new("SQLiteConnection")
+attributes(is_src_hydat)$src_hydat <- TRUE
+
+not_src_hydat <- is_src_hydat
+attributes(not_src_hydat)$src_hydat <- FALSE
+
+just_sqlite <- new("SQLiteConnection")
+
 test_that("set hydat db won't set something that isn't an src_hydat", {
-  expect_error(hydat_set_db(structure(1, class = "not_src_hydat")),
+  expect_error(hydat_set_db(not_src_hydat),
                "x must be a src_hydat .*?")
-  expect_silent(hydat_set_db(structure(1, class = "src_hydat")))
-  expect_is(hydat_get_db(), "src_hydat")
+  expect_error(hydat_set_db(just_sqlite),
+               "no slot of name \"src_hydat\" for this object of class \"SQLiteConnection\"")
+  expect_silent(hydat_set_db(is_src_hydat))
+  expect_is(hydat_get_db(), "SQLiteConnection") # Expect is SQLiteConnection
+  expect_true(hydat_get_db()@src_hydat) # Expect src_hydat slot
   expect_silent(hydat_set_db(NULL))
   expect_null(hydat_get_db())
 })
@@ -168,13 +182,14 @@ test_that("the hydat test database gets loaded", {
   expect_null(hydat_get_db())
 
   # make sure set = FALSE is respected
-  expect_is(hydat_load_test_db(set = FALSE), "src_hydat")
+  expect_is(hydat_load_test_db(set = FALSE), "SQLiteConnection") # Expect SQLiteConnection
+  expect_true(hydat_load_test_db(set = FALSE)@src_hydat) # Expect src_hydat slot
   expect_null(hydat_get_db())
 
   # make sure set = TRUE is respected
   hydat_load_test_db(set = TRUE)
-  expect_is(hydat_get_db(), "src_hydat")
-  expect_is(hydat_get_db(), "src_sql")
+  expect_is(hydat_get_db(), "SQLiteConnection")
+  expect_true(hydat_get_db()@src_hydat)
 
   # check tables
   expect_true(all(c("AGENCY_LIST", "ANNUAL_INSTANT_PEAKS", "ANNUAL_STATISTICS",
@@ -187,12 +202,14 @@ test_that("the hydat test database gets loaded", {
                     "STN_DATA_COLLECTION", "STN_DATA_RANGE", "STN_DATUM_CONVERSION",
                     "STN_DATUM_UNRELATED", "STN_OPERATION_SCHEDULE", "STN_REGULATION",
                     "STN_REMARKS", "STN_REMARK_CODES", "STN_STATUS_CODES",
-                    "VERSION") %in% dplyr::src_tbls(hydat_get_db())))
+                    "VERSION") %in% DBI::dbListTables(hydat_get_db())))
 
 
 })
 
 # cleanup temporary db files
 unlink(tmp_directory, recursive = TRUE)
+rm(tmp_zip_arc)
 rm(tmp_directory, tmp_db_location)
-
+rm(is_src_hydat, not_src_hydat, not_src_hydat1, not_src_hydat2, not_src_hydat3)
+rm(just_sqlite)
