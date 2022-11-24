@@ -64,6 +64,7 @@ hydat_sed_daily <- function(stationid, year=NULL, month=1:12, day=1:31, db = hyd
 hydat_data_base <- function(table, stationid, cols, year=NULL, month=1:12, db = hydat_get_db()) {
 
   # check db
+  if(is.null(db)) stop("hydat db is not loaded. Did you forget to run `hydat_load()`?")
   if(!is_hydat(db)) stop("db must be a valid src_hydat loaded using hydat_load()")
 
   # hack so that easy dplyr column names can keep on keepin' on
