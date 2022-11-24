@@ -64,6 +64,7 @@ hydat_sed_daily <- function(stationid, year=NULL, month=1:12, day=1:31, db = hyd
 hydat_data_base <- function(table, stationid, cols, year=NULL, month=1:12, db = hydat_get_db()) {
 
   # check db
+  if(is.null(db)) stop("hydat db is not loaded. Did you forget to run `hydat_load()`?")
   if(!is_hydat(db)) stop("db must be a valid src_hydat loaded using hydat_load()")
 
   # hack so that easy dplyr column names can keep on keepin' on
@@ -83,34 +84,42 @@ hydat_data_base <- function(table, stationid, cols, year=NULL, month=1:12, db = 
   month_max <- max(month)
 
   # user plyr to vectorize by stationid, since the %in% operator doesn't work for sqlite
+  # 2022-11-23 @popovs: I think %in% works now? Reworked for %in% usage
 
-  monthly <- plyr::adply(data.frame(STATION_NUMBER=stationid), 1, .fun=function(row) {
-    # check that station exists
-    df <- dplyr::tbl(db, table) %>%
-      dplyr::filter(STATION_NUMBER == row$STATION_NUMBER)
+  df <- dplyr::tbl(db, table) %>%
+    dplyr::filter(STATION_NUMBER %in% stationid)
 
-    df_head <- df %>% utils::head() %>% dplyr::collect()
-    if(nrow(df_head) == 0) stop("Station '", row$STATION_NUMBER, "' does not exist in table '",
-                                table, "'")
+  found_ids <- df %>%
+    dplyr::collect() %>%
+    dplyr::select(STATION_NUMBER) %>%
+    unique() %>%
+    dplyr::pull()
 
-    # select appropriate rows
-    df <- df %>%
-      dplyr::filter(MONTH >= month_min, MONTH <= month_max,
-                    YEAR >= year_min, YEAR <= year_max) %>%
-      dplyr::left_join(dplyr::tbl(db, "STATIONS"), by="STATION_NUMBER")
+  bad_ids <- stationid[!stationid %in% found_ids] # i.e., supplied station IDs that were not found in db
 
-    # select requires do.call, best to do this here to keep from returning
-    # too much data
+  if(length(bad_ids) == 1) {
+    stop("Station '", bad_ids, "' does not exist in table '", table, "'")
+  } else if(length(bad_ids) > 1) {
+    stop("Stations '", paste(bad_ids, collapse = "', '"), "' do not exist in table '", table, "'")
+    }
 
-    df <- do.call(dplyr::select_, c(list(df), cols)) %>%
-      dplyr::arrange(YEAR, MONTH) %>%
-      dplyr::collect() %>%
-      dplyr::filter(MONTH %in% month, YEAR %in% year) %>%
-      tibble::as_tibble()
+  # select appropriate rows
+  df <- df %>%
+    dplyr::filter(MONTH >= month_min, MONTH <= month_max,
+                  YEAR >= year_min, YEAR <= year_max) %>%
+    dplyr::left_join(dplyr::tbl(db, "STATIONS"), by="STATION_NUMBER")
 
-    # return df
-    df
-  })
+  # select requires do.call, best to do this here to keep from returning
+  # too much data
+
+  df <- do.call(dplyr::select, c(list(df), cols)) %>%
+    dplyr::arrange(YEAR, MONTH) %>%
+    dplyr::collect() %>%
+    dplyr::filter(MONTH %in% month, YEAR %in% year) %>%
+    tibble::as_tibble()
+
+  return(df)
+
 }
 
 hydat_data_monthly <- function(table, stationid, year=NULL, month=1:12, db = hydat_get_db()) {

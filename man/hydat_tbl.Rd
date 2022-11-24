@@ -22,7 +22,7 @@ STN_REMARK_CODES, STN_STATUS_CODES, and VERSION}
 \link{hydat_load} before using these functions)}
 }
 \value{
-A tbl_sql object (use dplyr to work with these objects)
+A tbl_SQLiteConnection object (use dplyr to work with these objects)
 }
 \description{
 This function gives low-level access to the underlying HYDAT tables used by

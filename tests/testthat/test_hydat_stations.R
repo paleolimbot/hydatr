@@ -25,14 +25,22 @@ test_that("station finding works with both numeric and character input", {
 })
 
 test_that("station finding fails with an inadequte db", {
+  # Check if db is loaded at all
   hydat_set_db(NULL)
   expect_error(hydat_find_stations(c(-64.36449, 45.09123), limit = 10),
-               "db must be a valid src_hydat .*?")
+               "hydat db is not loaded. Did you forget to run `hydat_load()`?")
   hydat_load_test_db()
   expect_silent(hydat_find_stations(c(-64.36449, 45.09123), limit = 10))
   expect_error(hydat_find_stations(c(-64.36449, 45.09123), limit = 10,
                                    db = NULL),
+               "hydat db is not loaded. Did you forget to run `hydat_load()`?")
+
+  # Check that loaded db has @src_hydat slot
+  db <- hydat_load_test_db()
+  slot(db, "src_hydat", check = FALSE) <- FALSE
+  expect_error(hydat_find_stations(db = db, c(-64.36449, 45.09123), limit = 10),
                "db must be a valid src_hydat .*?")
+
 })
 
 test_that("the limit parameter is respected", {

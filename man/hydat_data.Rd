@@ -9,23 +9,35 @@
 \alias{hydat_sed_daily}
 \title{Retreive HYDAT Data}
 \usage{
-hydat_flow_monthly(stationid, year = NULL, month = 1:12,
-  db = hydat_get_db())
+hydat_flow_monthly(stationid, year = NULL, month = 1:12, db = hydat_get_db())
 
-hydat_level_monthly(stationid, year = NULL, month = 1:12,
-  db = hydat_get_db())
+hydat_level_monthly(stationid, year = NULL, month = 1:12, db = hydat_get_db())
 
-hydat_sed_monthly(stationid, year = NULL, month = 1:12,
-  db = hydat_get_db())
+hydat_sed_monthly(stationid, year = NULL, month = 1:12, db = hydat_get_db())
 
-hydat_flow_daily(stationid, year = NULL, month = 1:12, day = 1:31,
-  db = hydat_get_db())
+hydat_flow_daily(
+  stationid,
+  year = NULL,
+  month = 1:12,
+  day = 1:31,
+  db = hydat_get_db()
+)
 
-hydat_level_daily(stationid, year = NULL, month = 1:12, day = 1:31,
-  db = hydat_get_db())
+hydat_level_daily(
+  stationid,
+  year = NULL,
+  month = 1:12,
+  day = 1:31,
+  db = hydat_get_db()
+)
 
-hydat_sed_daily(stationid, year = NULL, month = 1:12, day = 1:31,
-  db = hydat_get_db())
+hydat_sed_daily(
+  stationid,
+  year = NULL,
+  month = 1:12,
+  day = 1:31,
+  db = hydat_get_db()
+)
 }
 \arguments{
 \item{stationid}{The station identifier(s) for which data should be loaded}

@@ -14,10 +14,10 @@ database file.}
 database (advanced).}
 }
 \value{
-An object extending \link[dplyr]{src_sqlite}, invisibly
+An object extending \link[DBI]{dbConnect}, invisibly
 }
 \description{
-This function uses \link[dplyr]{src_sqlite} to load the sqlite database
+This function uses \link[DBI]{dbConnect} to load the sqlite database
 extracted by \link{hydat_extract} and downloaded using \link{hydat_download}.
 }
 \examples{
@@ -26,6 +26,6 @@ extracted by \link{hydat_extract} and downloaded using \link{hydat_download}.
 hydat_download()
 hydat_extract()
 hydat_db <- hydat_load()
-dplyr::src_tbls(hydat_db)
+DBI::dbListTables(hydat_db)
 }
 }

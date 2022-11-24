@@ -183,7 +183,7 @@ hydat_extract <- function(source = ".", destination = NULL, overwrite = NA) {
 
 #' Load a previously extracted Hydat Database
 #'
-#' This function uses \link[dplyr]{src_sqlite} to load the sqlite database
+#' This function uses \link[DBI]{dbConnect} to load the sqlite database
 #' extracted by \link{hydat_extract} and downloaded using \link{hydat_download}.
 #'
 #' @param source The directory where the Hydat database was extracted, or the
@@ -191,7 +191,7 @@ hydat_extract <- function(source = ".", destination = NULL, overwrite = NA) {
 #' @param set Pass FALSE to skip setting the internal package reference to the loaded
 #'   database (advanced).
 #'
-#' @return An object extending \link[dplyr]{src_sqlite}, invisibly
+#' @return An object extending \link[DBI]{dbConnect}, invisibly
 #' @export
 #'
 #' @examples
@@ -200,7 +200,7 @@ hydat_extract <- function(source = ".", destination = NULL, overwrite = NA) {
 #' hydat_download()
 #' hydat_extract()
 #' hydat_db <- hydat_load()
-#' dplyr::src_tbls(hydat_db)
+#' DBI::dbListTables(hydat_db)
 #' }
 hydat_load <- function(source = ".", set = TRUE) {
 
@@ -222,16 +222,24 @@ hydat_load <- function(source = ".", set = TRUE) {
     stop("Input ", source, " does not exist")
   }
 
-  # load using dplyr::src_sqlite
-  sqlsource <- dplyr::src_sqlite(source_file)
-  class(sqlsource) <- c("src_hydat", class(sqlsource))
+  # load using DBI::dbConnect
+  sqlsource <- DBI::dbConnect(RSQLite::SQLite(), source_file)
+
+  # There is probably a better way to set S4 class...
+  # Previously it was:
+  #class(sqlsource) <- c("src_hydat", class(sqlsource))
+  # Now I have simply added a slot called "src_hydat" with value TRUE;
+  # `is_hydat()` now checks if that slot exists.
+  # See e.g. https://stackoverflow.com/questions/38265754/how-to-add-new-slot-to-already-existing-class
+  #attributes(db)$class[2] <- "src_hydat" # causes issues down the road
+  attributes(sqlsource)$src_hydat <- TRUE
 
   # set the internal reference to the hydat database
   if(set) {
     hydat_set_db(sqlsource)
   }
 
-  # return the src_sqlite, invisibly
+  # return the SQLConnection, invisibly
   invisible(sqlsource)
 }
 
@@ -249,7 +257,13 @@ hydat_load <- function(source = ".", set = TRUE) {
 #' }
 #'
 is_hydat <- function(x) {
-  inherits(x, "src_hydat")
+  #inherits(x, "src_hydat")
+  # Update for S4 class of sqlsource: check if slot 'src_hydat' exists (and is TRUE)
+  if(class(x) == "SQLiteConnection") {
+    x@src_hydat
+  } else {
+      FALSE
+    }
 }
 
 # setup the package state environment
@@ -265,7 +279,7 @@ hydatr_state$hydat_db <- NULL
 #' with \code{set = TRUE}.
 #'
 #' @param x A hydat datbase loaded using \link{hydat_load}.
-#' @param set Shoult the temporary database be set as the internal
+#' @param set Should the temporary database be set as the internal
 #'   database?
 #'
 #' @return The hydat database or the previous hydat database.
@@ -319,7 +333,7 @@ hydat_load_test_db <- function(set = TRUE) {
 #' @param db The hydat database object to use (you will want to use
 #'   \link{hydat_load} before using these functions)
 #'
-#' @return A tbl_sql object (use dplyr to work with these objects)
+#' @return A tbl_SQLiteConnection object (use dplyr to work with these objects)
 #' @export
 #'
 #' @examples
