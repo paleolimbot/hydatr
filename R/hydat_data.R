@@ -89,9 +89,19 @@ hydat_data_base <- function(table, stationid, cols, year=NULL, month=1:12, db = 
   df <- dplyr::tbl(db, table) %>%
     dplyr::filter(STATION_NUMBER %in% stationid)
 
-  df_head <- df %>% utils::head() %>% dplyr::collect()
-  if(nrow(df_head) == 0) stop("Station '", row$STATION_NUMBER, "' does not exist in table '",
-                              table, "'")
+  found_ids <- df %>%
+    dplyr::collect() %>%
+    dplyr::select(STATION_NUMBER) %>%
+    unique() %>%
+    dplyr::pull()
+
+  bad_ids <- stationid[!stationid %in% found_ids] # i.e., supplied station IDs that were not found in db
+
+  if(length(bad_ids) == 1) {
+    stop("Station '", bad_ids, "' does not exist in table '", table, "'")
+  } else if(length(bad_ids) > 1) {
+    stop("Stations '", paste(bad_ids, collapse = "', '"), "' do not exist in table '", table, "'")
+    }
 
   # select appropriate rows
   df <- df %>%
