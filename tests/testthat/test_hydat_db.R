@@ -69,17 +69,23 @@ test_that("hydat_list_files matches files", {
 test_that("hydat_load works with set = TRUE and set = FALSE", {
   hydat_set_db(NULL) # clear db if one was previously loaded
   expect_null(hydat_get_db())
-  expect_is(hydat_load(tmp_db_location, set = FALSE), "src_hydat")
+  expect_is(hydat_load(tmp_db_location, set = FALSE), "SQLiteConnection") # Expect SQLiteConnection
+  expect_true(hydat_load(tmp_db_location, set = FALSE)@src_hydat) # Expect "src_hydat" slot
   expect_null(hydat_get_db())
-  expect_is(hydat_load(tmp_directory, set = FALSE), "src_hydat")
+  expect_is(hydat_load(tmp_directory, set = FALSE), "SQLiteConnection") # Expect SQLiteConnection
+  expect_true(hydat_load(tmp_directory, set = FALSE)@src_hydat) # Expect "src_hydat" slot
   expect_null(hydat_get_db())
 
-  expect_is(hydat_load(tmp_db_location, set = TRUE), "src_hydat")
-  expect_is(hydat_get_db(), "src_hydat")
+  expect_is(hydat_load(tmp_db_location, set = TRUE), "SQLiteConnection") # Expect SQLiteConnection
+  expect_true(hydat_load(tmp_db_location, set = TRUE)@src_hydat) # Expect "src_hydat" slot
+  expect_is(hydat_get_db(), "SQLiteConnection") # Expect SQLiteConnection
+  expect_true(hydat_get_db()@src_hydat) # Expect "src_hydat" slot
   hydat_set_db(NULL)
   expect_null(hydat_get_db())
-  expect_is(hydat_load(tmp_directory, set = TRUE), "src_hydat")
-  expect_is(hydat_get_db(), "src_hydat")
+  expect_is(hydat_load(tmp_directory, set = TRUE), "SQLiteConnection") # Expect SQLiteConnection
+  expect_true(hydat_load(tmp_directory, set = TRUE)@src_hydat) # Expect "src_hydat" slot
+  expect_is(hydat_get_db(), "SQLiteConnection") # Expect SQLiteConnection
+  expect_true(hydat_get_db()@src_hydat) # Expect "src_hydat" slot
   hydat_set_db(NULL)
 })
 
