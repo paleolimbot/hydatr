@@ -84,34 +84,32 @@ hydat_data_base <- function(table, stationid, cols, year=NULL, month=1:12, db = 
   month_max <- max(month)
 
   # user plyr to vectorize by stationid, since the %in% operator doesn't work for sqlite
+  # 2022-11-23 @popovs: I think %in% works now? Reworked for %in% usage
 
-  monthly <- plyr::adply(data.frame(STATION_NUMBER=stationid), 1, .fun=function(row) {
-    # check that station exists
-    df <- dplyr::tbl(db, table) %>%
-      dplyr::filter(STATION_NUMBER == row$STATION_NUMBER)
+  df <- dplyr::tbl(db, table) %>%
+    dplyr::filter(STATION_NUMBER %in% stationid)
 
-    df_head <- df %>% utils::head() %>% dplyr::collect()
-    if(nrow(df_head) == 0) stop("Station '", row$STATION_NUMBER, "' does not exist in table '",
-                                table, "'")
+  df_head <- df %>% utils::head() %>% dplyr::collect()
+  if(nrow(df_head) == 0) stop("Station '", row$STATION_NUMBER, "' does not exist in table '",
+                              table, "'")
 
-    # select appropriate rows
-    df <- df %>%
-      dplyr::filter(MONTH >= month_min, MONTH <= month_max,
-                    YEAR >= year_min, YEAR <= year_max) %>%
-      dplyr::left_join(dplyr::tbl(db, "STATIONS"), by="STATION_NUMBER")
+  # select appropriate rows
+  df <- df %>%
+    dplyr::filter(MONTH >= month_min, MONTH <= month_max,
+                  YEAR >= year_min, YEAR <= year_max) %>%
+    dplyr::left_join(dplyr::tbl(db, "STATIONS"), by="STATION_NUMBER")
 
-    # select requires do.call, best to do this here to keep from returning
-    # too much data
+  # select requires do.call, best to do this here to keep from returning
+  # too much data
 
-    df <- do.call(dplyr::select_, c(list(df), cols)) %>%
-      dplyr::arrange(YEAR, MONTH) %>%
-      dplyr::collect() %>%
-      dplyr::filter(MONTH %in% month, YEAR %in% year) %>%
-      tibble::as_tibble()
+  df <- do.call(dplyr::select, c(list(df), cols)) %>%
+    dplyr::arrange(YEAR, MONTH) %>%
+    dplyr::collect() %>%
+    dplyr::filter(MONTH %in% month, YEAR %in% year) %>%
+    tibble::as_tibble()
 
-    # return df
-    df
-  })
+  return(df)
+
 }
 
 hydat_data_monthly <- function(table, stationid, year=NULL, month=1:12, db = hydat_get_db()) {
