@@ -35,18 +35,18 @@ hydat_find_stations <- function(x, year = NULL, limit = 10, db = hydat_get_db())
   # calculate ranges
   YEAR_TO <- NULL; rm(YEAR_TO); YEAR_FROM <- NULL; rm(YEAR_FROM)
   year_range_stations <- dplyr::tbl(db, "STN_DATA_RANGE") %>%
-    dplyr::group_by_("STATION_NUMBER") %>%
+    dplyr::group_by(STATION_NUMBER) %>%
     dplyr::summarise(YEAR_FROM = min(YEAR_FROM), YEAR_TO = max(YEAR_TO))
 
   LONGITUDE <- NULL; rm(LONGITUDE); LATITUDE <- NULL; rm(LATITUDE)
   stations <- dplyr::tbl(db, "STATIONS") %>%
-    dplyr::select_("STATION_NUMBER", "PROV_TERR_STATE_LOC", "STATION_NAME", "LATITUDE", "LONGITUDE",
+    dplyr::select("STATION_NUMBER", "PROV_TERR_STATE_LOC", "STATION_NAME", "LATITUDE", "LONGITUDE",
                   "DRAINAGE_AREA_GROSS") %>%
     dplyr::left_join(year_range_stations, by = "STATION_NUMBER") %>%
     dplyr::collect() %>%
     dplyr::mutate(dist_from_query_km = geodist(loc$lon, loc$lat, LONGITUDE, LATITUDE) / 1000) %>%
-    dplyr::arrange_("dist_from_query_km") %>%
-    dplyr::select_("STATION_NUMBER", "dist_from_query_km", "STATION_NAME", FIRST_YEAR = "YEAR_FROM",
+    dplyr::arrange("dist_from_query_km") %>%
+    dplyr::select("STATION_NUMBER", "dist_from_query_km", "STATION_NAME", FIRST_YEAR = "YEAR_FROM",
                   LAST_YEAR = "YEAR_TO", "LONGITUDE", "LATITUDE", "DRAINAGE_AREA_GROSS")
 
   # filter by year
@@ -88,7 +88,7 @@ hydat_station_info <- function(stationid = NULL, db = hydat_get_db()) {
   # calculate ranges
   YEAR_FROM <- NULL; rm(YEAR_FROM); YEAR_TO <- NULL; rm(YEAR_TO)
   year_range_stations <- dplyr::tbl(db, "STN_DATA_RANGE") %>%
-    dplyr::group_by_("STATION_NUMBER") %>%
+    dplyr::group_by("STATION_NUMBER") %>%
     dplyr::summarise(YEAR_FROM = min(YEAR_FROM), YEAR_TO = max(YEAR_TO))
 
   # join stations tables together
@@ -100,7 +100,7 @@ hydat_station_info <- function(stationid = NULL, db = hydat_get_db()) {
     dplyr::left_join(dplyr::tbl(db, "AGENCY_LIST"), by = c("CONTRIBUTOR_ID" = "AGENCY_ID")) %>%
     dplyr::left_join(dplyr::tbl(db, "AGENCY_LIST"), by = c("OPERATOR_ID" = "AGENCY_ID"),
               suffix = c("_CONTRIBUTOR", "_OPERATOR")) %>%
-    dplyr::select_("STATION_NUMBER", "STATION_NAME", "PROV_TERR_STATE_LOC", "LATITUDE", "LONGITUDE",
+    dplyr::select("STATION_NUMBER", "STATION_NAME", "PROV_TERR_STATE_LOC", "LATITUDE", "LONGITUDE",
            "DRAINAGE_AREA_GROSS", "DRAINAGE_AREA_EFFECT", "STATUS_EN_HYD", "STATUS_EN_SED",
            "REGIONAL_OFFICE_NAME_EN", "AGENCY_EN_CONTRIBUTOR", "AGENCY_EN_OPERATOR",
            "RHBN", "REAL_TIME", "DATUM_ID")
@@ -119,5 +119,5 @@ hydat_station_info <- function(stationid = NULL, db = hydat_get_db()) {
   stations %>%
     dplyr::left_join(year_range_stations, by = "STATION_NUMBER", copy = TRUE) %>%
     dplyr::collect() %>%
-    dplyr::rename_(FIRST_YEAR = "YEAR_FROM", LAST_YEAR = "YEAR_TO")
+    dplyr::rename(FIRST_YEAR = "YEAR_FROM", LAST_YEAR = "YEAR_TO")
 }
